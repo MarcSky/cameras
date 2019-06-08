@@ -185,4 +185,6 @@ pip-selfcheck.json
 # local settings
 ./client_api/server/local_settings.py
 
+./frontend/node_modules
+
 # End of https://www.gitignore.io/api/linux,macos,python,virtualenv
