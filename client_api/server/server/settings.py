@@ -25,7 +25,7 @@ SECRET_KEY = '#^xy-nj$90o(f9=%px9wre69#84(b27-c&x#p1*)#5q#blan!b'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'localhost'
+    'localhost', '127.0.0.1'
 ]
 
 # Application definition
@@ -73,26 +73,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'server.wsgi.application'
 
-# Database
-# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'OPTIONS': {
-            'options': '-c search_path=public'
-        },
-        'HOST': 'localhost',
-        'PORT': '5432',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-    },
-}
-
-# Password validation
-# https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -135,3 +115,8 @@ CORS_ALLOW_CREDENTIALS = True
 # CORS_ORIGIN_REGEX_WHITELIST = (
 #     'localhost:3000',
 # )
+
+try:
+    from .local_setting import DATABASES
+except ImportError:
+    pass
