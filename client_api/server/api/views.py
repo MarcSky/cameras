@@ -7,6 +7,7 @@ from api.models import Advertising, Buildings, Green, Ntopoly
 from shapely.geometry import shape
 from django.core.serializers import serialize
 from django.contrib.gis.geos import Polygon
+from django.views.generic import TemplateView
 
 
 class GeoList(APIView):
@@ -156,3 +157,6 @@ class ParserView(APIView):
         del shapes
 
         return Response("ok")
+
+class IndexView(TemplateView):
+    template_name = 'api/index.html'
