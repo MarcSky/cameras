@@ -1,29 +1,14 @@
-from django.contrib.gis.db import models
+from django.contrib.gis.db.models import Model, PolygonField
 
-class Advertising(models.Model):
-    figure = models.PolygonField()
+class Advertising(Model):
+    figure = PolygonField(srid=4326)
 
-    class Meta():
-        managed=False
-        db_table = 'advertising'
 
-class Buildings(models.Model):
-    figure = models.PolygonField()
+class Buildings(Model):
+    figure = PolygonField()
 
-    class Meta():
-        managed=False
-        db_table = 'buildings'
+class Green(Model):
+    figure = PolygonField()
 
-class Green(models.Model):
-    figure = models.PolygonField()
-
-    class Meta():
-        managed=False
-        db_table = 'green'
-
-class Ntopoly(models.Model):
-    figure = models.PolygonField()
-
-    class Meta():
-        managed=False
-        db_table = 'ntopoly'
+class Ntopoly(Model):
+    figure = PolygonField()
