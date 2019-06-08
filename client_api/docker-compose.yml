@@ -9,14 +9,14 @@ services:
     - app-db-data:/var/lib/postgresql/data
     environment:
     - POSTGRES_PASSWD=postgres
-  web:
-    build: .
-    command: python3 server/manage.py runserver 0.0.0.0:8000
-    ports:
-      - 8000:8000
-    depends_on:
-      - db_postgres
-
+#  web:
+#    build: .
+#    command: python3 server/manage.py runserver 0.0.0.0:8000
+#    ports:
+#      - 8000:8000
+#    depends_on:
+#      - db_postgres
+#
 volumes:
   app-db-data:
     driver: local
