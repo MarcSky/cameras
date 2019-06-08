@@ -22,25 +22,29 @@ class FigureList(APIView):
 
         if t == 'green':
             if bbox is not None:
-                geom = Polygon.from_bbox(bbox=(bbox[0],bbox[1],bbox[2],bbox[3]))
+                bbox = bbox.split(',')
+                geom = Polygon.from_bbox(bbox=(float(bbox[0]),float(bbox[1]),float(bbox[2]),float(bbox[3])))
                 object = Green.objects.filter(figure__contained=geom)
             else:
                 object = Green.objects.all()
         elif t == 'ntopoly':
             if bbox is not None:
-                geom = Polygon.from_bbox(bbox=(bbox[0],bbox[1],bbox[2],bbox[3]))
+                bbox = bbox.split(',')
+                geom = Polygon.from_bbox(bbox=(float(bbox[0]),float(bbox[1]),float(bbox[2]),float(bbox[3])))
                 object = Ntopoly.objects.filter(figure__contained=geom)
             else:
                 object = Ntopoly.objects.all()
         elif t == 'advertising':
             if bbox is not None:
-                geom = Polygon.from_bbox(bbox=(bbox[0],bbox[1],bbox[2],bbox[3]))
+                bbox = bbox.split(',')
+                geom = Polygon.from_bbox(bbox=(float(bbox[0]),float(bbox[1]),float(bbox[2]),float(bbox[3])))
                 object = Advertising.objects.filter(figure__contained=geom)
             else:
                 object = Advertising.objects.all()
         else:
             if bbox is not None:
-                geom = Polygon.from_bbox(bbox=(bbox[0],bbox[1],bbox[2],bbox[3]))
+                bbox = bbox.split(',')
+                geom = Polygon.from_bbox(bbox=(float(bbox[0]),float(bbox[1]),float(bbox[2]),float(bbox[3])))
                 object = Advertising.objects.filter(figure__contained=geom)
             else:
                 object = Advertising.objects.all()

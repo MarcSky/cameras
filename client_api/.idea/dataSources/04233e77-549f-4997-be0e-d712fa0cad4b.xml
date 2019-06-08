@@ -89,8 +89,8 @@
       <ObjectId>2200</ObjectId>
       <Comment>standard public schema</Comment>
       <Owner>postgres</Owner>
-      <IntrospectionTimestamp>2019-06-08.17:28:29.705</IntrospectionTimestamp>
-      <IntrospectionStateNumber>671</IntrospectionStateNumber>
+      <IntrospectionTimestamp>2019-06-08.20:45:18.986</IntrospectionTimestamp>
+      <IntrospectionStateNumber>869</IntrospectionStateNumber>
       <Current>1</Current>
       <Visible>1</Visible>
     </schema>
@@ -402,7 +402,7 @@
     <table id="57" parent="17" name="api_green">
       <ObjectId>18343</ObjectId>
       <Owner>postgres</Owner>
-      <StateNumber>671</StateNumber>
+      <StateNumber>869</StateNumber>
     </table>
     <table id="58" parent="17" name="api_ntopoly">
       <ObjectId>18354</ObjectId>
@@ -16674,9 +16674,9 @@
     </column>
     <column id="1405" parent="57" name="figure">
       <Position>2</Position>
-      <DataType>geometry(Polygon,4326)|0v</DataType>
+      <DataType>geometry(Point,4326)|0v</DataType>
       <NotNull>1</NotNull>
-      <StateNumber>671</StateNumber>
+      <StateNumber>869</StateNumber>
       <TypeId>16390</TypeId>
     </column>
     <index id="1406" parent="57" name="api_green_pkey">
@@ -16685,7 +16685,7 @@
       <Unique>1</Unique>
     </index>
     <index id="1407" parent="57" name="api_green_figure_id">
-      <ObjectId>18365</ObjectId>
+      <ObjectId>18385</ObjectId>
       <ColNames>figure</ColNames>
     </index>
     <key id="1408" parent="57" name="api_green_pkey">
