@@ -15,50 +15,88 @@ class GeoList(APIView):
             return Response(json.load(f))
 
 
-class FigureList(APIView):
+def getGeom(bbox):
+    bbox = bbox.split(',')
+    return Polygon.from_bbox(bbox=(float(bbox[0]), float(bbox[1]), float(bbox[2]), float(bbox[3])))
+
+
+def getResponse(object):
+    return serialize(
+        'geojson',
+        object,
+        geometry_field='figure',
+        fields=('figure')
+    )
+
+
+class GreenView(APIView):
     def get(self, request):
-        t = request.GET.get('t')
         bbox = request.GET.get('bbox')
 
-        if t == 'green':
-            if bbox is not None:
-                bbox = bbox.split(',')
-                geom = Polygon.from_bbox(bbox=(float(bbox[0]),float(bbox[1]),float(bbox[2]),float(bbox[3])))
-                object = Green.objects.filter(figure__contained=geom)
-            else:
-                object = Green.objects.all()
-        elif t == 'ntopoly':
-            if bbox is not None:
-                bbox = bbox.split(',')
-                geom = Polygon.from_bbox(bbox=(float(bbox[0]),float(bbox[1]),float(bbox[2]),float(bbox[3])))
-                object = Ntopoly.objects.filter(figure__contained=geom)
-            else:
-                object = Ntopoly.objects.all()
-        elif t == 'advertising':
-            if bbox is not None:
-                bbox = bbox.split(',')
-                geom = Polygon.from_bbox(bbox=(float(bbox[0]),float(bbox[1]),float(bbox[2]),float(bbox[3])))
-                object = Advertising.objects.filter(figure__contained=geom)
-            else:
-                object = Advertising.objects.all()
+        if bbox is not None:
+            try:
+                object = Green.objects.filter(figure__contained=getGeom(bbox=bbox))
+            except Exception as e:
+                return Response(e)
         else:
-            if bbox is not None:
-                bbox = bbox.split(',')
-                geom = Polygon.from_bbox(bbox=(float(bbox[0]),float(bbox[1]),float(bbox[2]),float(bbox[3])))
-                object = Advertising.objects.filter(figure__contained=geom)
-            else:
-                object = Advertising.objects.all()
-
-
-        data = serialize(
-            'geojson',
-            object,
-            geometry_field='figure',
-            fields=('figure')
-        )
+            object = Green.objects.all()
 
         return Response(
-            json.loads(data),
+            json.loads(getResponse(object=object)),
+            content_type='application/json'
+        )
+
+
+class AdvertisingView(APIView):
+    def get(self, request):
+        bbox = request.GET.get('bbox')
+
+        if bbox is not None:
+            try:
+                object = Advertising.objects.filter(figure__contained=getGeom(bbox=bbox))
+            except Exception as e:
+                return Response(e)
+        else:
+            object = Advertising.objects.all()
+
+        return Response(
+            json.loads(getResponse(object=object)),
+            content_type='application/json'
+        )
+
+
+class BuildingsView(APIView):
+    def get(self, request):
+        bbox = request.GET.get('bbox')
+
+        if bbox is not None:
+            try:
+                object = Buildings.objects.filter(figure__contained=getGeom(bbox=bbox))
+            except Exception as e:
+                return Response(e)
+        else:
+            object = Buildings.objects.all()
+
+        return Response(
+            json.loads(getResponse(object=object)),
+            content_type='application/json'
+        )
+
+
+class NtopolyView(APIView):
+    def get(self, request):
+        bbox = request.GET.get('bbox')
+
+        if bbox is not None:
+            try:
+                object = Ntopoly.objects.filter(figure__contained=getGeom(bbox=bbox))
+            except Exception as e:
+                return Response(e)
+        else:
+            object = Ntopoly.objects.all()
+
+        return Response(
+            json.loads(getResponse(object=object)),
             content_type='application/json'
         )
 
