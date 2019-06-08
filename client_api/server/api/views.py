@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from api.models import Advertising, Buildings, Green, Ntopoly
 from shapely.geometry import shape
 from django.core.serializers import serialize
+from django.contrib.gis.geos import Polygon
 
 
 class GeoList(APIView):
@@ -20,7 +21,11 @@ class FigureList(APIView):
         bbox = request.GET.get('bbox')
 
         if t == 'green':
-            object = Green.objects.all()
+            if bbox is not None:
+                geom = Polygon.from_bbox(bbox=bbox)
+                object = Buildings.objects.filter(figure__contained=geom)
+            else:
+                object = Green.objects.all()
         elif t == 'ntopoly':
             object = Ntopoly.objects.all()
         elif t == 'advertising':
@@ -28,11 +33,12 @@ class FigureList(APIView):
         else:
             object = Buildings.objects.all()
 
+
         data = serialize(
             'geojson',
             object,
             geometry_field='figure',
-            fields=('figure',)
+            fields=('figure')
         )
 
         return Response(
