@@ -22,16 +22,28 @@ class FigureList(APIView):
 
         if t == 'green':
             if bbox is not None:
-                geom = Polygon.from_bbox(bbox=bbox)
-                object = Buildings.objects.filter(figure__contained=geom)
+                geom = Polygon.from_bbox(bbox=(bbox[0],bbox[1],bbox[2],bbox[3]))
+                object = Green.objects.filter(figure__contained=geom)
             else:
                 object = Green.objects.all()
         elif t == 'ntopoly':
-            object = Ntopoly.objects.all()
+            if bbox is not None:
+                geom = Polygon.from_bbox(bbox=(bbox[0],bbox[1],bbox[2],bbox[3]))
+                object = Ntopoly.objects.filter(figure__contained=geom)
+            else:
+                object = Ntopoly.objects.all()
         elif t == 'advertising':
-            object = Advertising.objects.all()
+            if bbox is not None:
+                geom = Polygon.from_bbox(bbox=(bbox[0],bbox[1],bbox[2],bbox[3]))
+                object = Advertising.objects.filter(figure__contained=geom)
+            else:
+                object = Advertising.objects.all()
         else:
-            object = Buildings.objects.all()
+            if bbox is not None:
+                geom = Polygon.from_bbox(bbox=(bbox[0],bbox[1],bbox[2],bbox[3]))
+                object = Advertising.objects.filter(figure__contained=geom)
+            else:
+                object = Advertising.objects.all()
 
 
         data = serialize(
