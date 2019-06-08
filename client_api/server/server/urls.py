@@ -19,8 +19,7 @@ from api import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('geo/', views.GeoList.as_view()),
+    # path('geo/', views.GeoList.as_view()),
     path('parser/', views.ParserView.as_view()),
     path('figures/', views.FigureList.as_view()),
-
 ]
