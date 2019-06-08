@@ -182,4 +182,7 @@ dmypy.json
 pyvenv.cfg
 pip-selfcheck.json
 
+# local settings
+./client_api/server/local_settings.py
+
 # End of https://www.gitignore.io/api/linux,macos,python,virtualenv
