@@ -1,17 +1,29 @@
 from django.contrib.gis.db import models
 
-class Zipcode(models.Model):
-    code = models.CharField(max_length=5)
-    poly = models.PolygonField()
+class Advertising(models.Model):
+    figure = models.PolygonField()
 
     class Meta():
         managed=False
-        db_table = 'public\".\"zipcode'
+        db_table = 'advertising'
 
+class Buildings(models.Model):
+    figure = models.PolygonField()
 
-class Elevation(models.Model):
-    name = models.CharField(max_length=100)
-    rast = models.RasterField()
     class Meta():
         managed=False
-        db_table = 'public\".\"elevation'
+        db_table = 'buildings'
+
+class Green(models.Model):
+    figure = models.PolygonField()
+
+    class Meta():
+        managed=False
+        db_table = 'green'
+
+class Ntopoly(models.Model):
+    figure = models.PolygonField()
+
+    class Meta():
+        managed=False
+        db_table = 'ntopoly'
