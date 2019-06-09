@@ -1,12 +1,15 @@
 import math
-from server.camera_utils import Camera
+from camera_utils import Camera
 from random import randint
+import copy
+import random
+from shapely.geometry import Polygon
 
 
 class CameraManager():
-    def __init__(self, cameras):
+    def __init__(self, cameras, count=40):
         self.cameras = cameras
-        self.numberOfCameras = len(cameras)
+        self.numberOfCameras = count #len(cameras)
         self.area = 0.0
 
     def getCamera(self, index):
@@ -19,46 +22,49 @@ class CameraManager():
         self.area = 0.0
 
     def getArea(self):
-        if self.area == 0.0:
-            currentArea = 0.0
-            for i, camera in enumerate(self.cameras):
-                if not isinstance(camera, Camera):
-                    continue
-
-                first_camera = camera
-                if i + 1 < self.numberOfCameras:
-                    second_camera = self.cameras[i]
-                else:
-                    second_camera = self.cameras[0]
-
-                if not isinstance(second_camera, Camera):
-                    continue
-
-                currentArea += first_camera.polygon.intersection(second_camera.polygon).area
-            self.area = currentArea
-        return self.area
+        area = 0.0
+        for c in self.cameras:
+            area += c.area
+        return area
 
 
 class SimulatedAnnealing():
-    def __init__(self, cameraManager):
+    def __init__(self, cameraManager, full_buildings):
         self.cameraManager = cameraManager
+        self.full_buildings = full_buildings
 
     def acceptanceProbability(self, energy, newEnergy, temperature):
         if newEnergy < energy:
             return 1.0
         return math.exp((energy - newEnergy) / temperature)
 
+    def newGeneration(self, cameras):
+        for c in cameras:
+            c.refresh_polygon()
+
+            for b in self.full_buildings:
+                p = Polygon(b.polygon)
+                c.screen_building(p)
+        return cameras
+
     def start(self):
         temp = 1000.0
-        coolingRate = 0.1
+        coolingRate = 1
 
-        bestSolution = self.cameraManager
+        random.shuffle(self.cameraManager.cameras)
+        currentSolutionCameras = self.newGeneration(self.cameraManager.cameras[0:self.cameraManager.numberOfCameras])
+        currentSolution = CameraManager(cameras=currentSolutionCameras, count=self.cameraManager.numberOfCameras)
+
+        bestSolution = CameraManager(cameras=currentSolutionCameras, count=self.cameraManager.numberOfCameras)
 
         while (temp > 1):
-            newSolution = self.cameraManager
 
-            first_camera_index = randint(0, self.cameraManager.numberOfCameras)
-            second_camera_index = randint(0, self.cameraManager.numberOfCameras)
+            random.shuffle(self.cameraManager.cameras)
+            newSolutionCameras = self.newGeneration(self.cameraManager.cameras[0:self.cameraManager.numberOfCameras])
+            newSolution = CameraManager(cameras=newSolutionCameras, count=self.cameraManager.numberOfCameras)
+
+            first_camera_index = randint(0, self.cameraManager.numberOfCameras - 1)
+            second_camera_index = randint(0, self.cameraManager.numberOfCameras - 1)
 
             first_camera_swap = newSolution.cameras[first_camera_index]
             second_camera_swap = newSolution.cameras[first_camera_index]
@@ -66,12 +72,16 @@ class SimulatedAnnealing():
             newSolution.setCamera(first_camera_swap, second_camera_index)
             newSolution.setCamera(second_camera_swap, first_camera_index)
 
-            currentEnergy = bestSolution.getArea()
+            currentEnergy = currentSolution.getArea()
             neighborEnergy = newSolution.getArea()
 
-            if self.acceptanceProbability(currentEnergy, neighborEnergy, temp) > randint(0, 1000):
-                bestSolution = newSolution
+            if self.acceptanceProbability(currentEnergy, neighborEnergy, temp) > float(temp/1000):
+                currentSolution = copy.deepcopy(newSolution)
+
+            if currentSolution.getArea() < bestSolution.getArea():
+                bestSolution = currentSolution
 
             temp *= 1 - coolingRate
+            print(temp)
 
         return bestSolution.cameras
