@@ -75,7 +75,7 @@ export class CamSettings extends React.PureComponent<Props> {
 
 		this.setState({pending: true});
 		try{
-			let response = await axios.get('api/res-point2/');
+			let response = await axios.get(`api/res-point2?count=&{120}`);
 			let results = response.data.features;
 
 			if (results.length){

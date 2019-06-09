@@ -49,7 +49,7 @@ class SimulatedAnnealing():
 
     def start(self):
         temp = 1000.0
-        coolingRate = 0.1
+        coolingRate = 1
 
         random.shuffle(self.cameraManager.cameras)
         currentSolutionCameras = self.newGeneration(self.cameraManager.cameras[0:self.cameraManager.numberOfCameras])
