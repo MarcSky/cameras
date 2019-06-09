@@ -11,6 +11,11 @@ import GeoJSON from 'ol/format/GeoJSON.js';
 import { List, Button, Modal, Spin, Icon, Form, InputNumber, Menu, Switch } from 'antd';
 import LayerListItem from './LayerListItem';
 
+
+import olStyle from 'ol/style/Style';
+import olFillStyle from 'ol/style/Fill';
+import olStrokeStyle from 'ol/style/Stroke';
+
 import axios from 'axios';
 // import './style.scss'f
 
@@ -86,9 +91,18 @@ export class CamSettings extends React.PureComponent<Props> {
           })
         });
 
+        const RStyle = new olStyle({
+				  fill: new olFillStyle({ color: [206, 255, 0, 0] }),
+				  stroke: new olStrokeStyle({
+				    color: '#ceae7f',
+				    width: 1,
+				  }),
+				});
+
         let layer = new olVectorLayer({
           source: vectorSource,
-          name: 'cam'
+          name: 'cam',
+          opacity: 0.7
           // style: style,
         });
 
