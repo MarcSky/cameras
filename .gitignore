@@ -184,8 +184,10 @@ pyvenv.cfg
 pip-selfcheck.json
 
 # local settings
-./client_api/server/local_settings.py
 
-./frontend/node_modules
+local_settings.py
+node_modules
+static
+package-lock.json
 
 # End of https://www.gitignore.io/api/linux,macos,python,virtualenv

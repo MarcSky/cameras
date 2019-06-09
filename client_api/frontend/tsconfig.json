@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+  	"outDir": "./build",
+  	"moduleResolution": "node",
+    "sourceMap": true,
+    "module": "es6",
+    "target": "ES2015",
+    "jsx": "react",
+    "lib":["es2017", "dom"],
+    "allowJs": true
+  }
+}
