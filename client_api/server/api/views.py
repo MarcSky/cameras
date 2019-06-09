@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from api.models import Advertising, Buildings, Green, Ntopoly
 from shapely.geometry import shape
 from django.core.serializers import serialize
-from django.contrib.gis.geos import Polygon, GeometryCollection
+from django.contrib.gis.geos import GeometryCollection
 from django.views.generic import TemplateView
 from camera_utils.camera import Camera
 from camera_utils.building import Building
@@ -23,6 +23,7 @@ class GeoList(APIView):
 
 def getGeom(bbox):
     bbox = bbox.split(',')
+    from django.contrib.gis.geos import Polygon
     return Polygon.from_bbox(bbox=(float(bbox[0]), float(bbox[1]), float(bbox[2]), float(bbox[3])))
 
 
@@ -258,7 +259,6 @@ class GetResPoints2View(APIView):
 
         cameras = []
         full_buildings = []
-
         for building in buildings:
             polygons = building.figure.coords
 
@@ -272,14 +272,19 @@ class GetResPoints2View(APIView):
                     cameras.extend(b.get_allowed_wall_cameras(p))  # object Camera
 
 
-        random.shuffle(cameras)
-        cameras = cameras[0: min(int(count), len(cameras))]
-        for c in cameras:
-            c.refresh_polygon()
-
-            for b in full_buildings:
-                p = Polygon(b.polygon)
-                c.screen_building(p)
-
+        # random.shuffle(cameras)
+        # cameras = cameras[0: min(int(count), len(cameras))]
+        # for c in cameras:
+        #     c.refresh_polygon()
+        #
+        #     for b in full_buildings:
+        #         p = Polygon(b.polygon)
+        #         c.screen_building(p)
+        # return
+        # print(len(cameras))
+        from annealing.camera_manager import CameraManager, SimulatedAnnealing
+        camera_manager = CameraManager(cameras=cameras, count=int(count))
+        annealing = SimulatedAnnealing(cameraManager=camera_manager, full_buildings=full_buildings)
+        cameras = annealing.start()
         cameras_polygons = [c.polygon for c in cameras]
         return Response(geopandas.GeoSeries(cameras_polygons).__geo_interface__)
