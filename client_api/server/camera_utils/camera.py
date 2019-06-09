@@ -6,10 +6,11 @@ from .consts import ALLOWED_DISTANCE_ERROR, VIEWING_ANGLE, VIEWING_DISTANCE, VIE
 
 
 class Camera:
-    def __init__(self, point, direction):
+    def __init__(self, point, direction_vector):
         self.point = point
+        direction = LineString([(0, 0), (direction_vector.x, direction_vector.y)])
         length = direction.length
-        self.direction = scale(direction, 1 / length, 1 / length, origin=direction.coords[0])
+        self.direction = scale(direction, 1 / length, 1 / length, origin=(0, 0))
         self.center = None
         self.polygon = None
         self.polyline = None
@@ -25,7 +26,7 @@ class Camera:
         return self.polygon.area
 
     def refresh_polygon(self):
-        self.center = scale(self.direction, VIEWING_DISTANCE, VIEWING_DISTANCE, origin=Point(0, 0))
+        self.center = scale(self.direction, VIEWING_DISTANCE, VIEWING_DISTANCE, origin=(0, 0))
         self.center = translate(self.center, self.point.x, self.point.y)
         points = [self.point.coords[0]]
         angles = np.linspace(-VIEWING_ANGLE / 2, VIEWING_ANGLE / 2, VIEWING_POINTS)

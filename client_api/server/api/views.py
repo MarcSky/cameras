@@ -229,7 +229,7 @@ import geopandas
 
 class GetResPointsView(APIView):
 
-    def get(self):
+    def get(self, request):
         buildings = Buildings.objects.all()
         points = []
         for building in buildings:

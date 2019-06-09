@@ -1,0 +1,155 @@
+diff --git a/camera-points.patch b/camera-points.patch
+deleted file mode 100644
+index 420fa1c..0000000
+--- a/camera-points.patch
++++ /dev/null
+@@ -1,75 +0,0 @@
+-diff --git a/client_api/server/camera_utils/__init__.py b/client_api/server/camera_utils/__init__.py
+-index e69de29..e0017af 100644
+---- a/client_api/server/camera_utils/__init__.py
+-+++ b/client_api/server/camera_utils/__init__.py
+-@@ -0,0 +1,2 @@
+-+from .building import Building
+-+from .camera import Camera
+-diff --git a/client_api/server/camera_utils/building.py b/client_api/server/camera_utils/building.py
+-new file mode 100644
+-index 0000000..798def4
+---- /dev/null
+-+++ b/client_api/server/camera_utils/building.py
+-@@ -0,0 +1,28 @@
+-+from shapely.geometry import LineString
+-+
+-+from .consts import WALL_CAMERA_DISTANCE, ALLOWED_DISTANCE_ERROR
+-+
+-+
+-+class Building:
+-+    def __init__(self, building_polygon):
+-+        self.polygon = building_polygon
+-+        # Points where cameras are allowed to be placed.
+-+        self.allowed_wall_points = []
+-+
+-+    @staticmethod
+-+    def calculate_wall_points(wall):
+-+        if wall.length - WALL_CAMERA_DISTANCE < ALLOWED_DISTANCE_ERROR:
+-+            # Get middle of the wall.
+-+            return [wall.interpolate(0.5, normalized=True)]
+-+
+-+        points_count = int(wall.length // WALL_CAMERA_DISTANCE)
+-+        return [wall.interpolate((i / points_count), normalized=True) for i in range(1, points_count)]
+-+
+-+    def refresh(self):
+-+        self.refresh_allowed_points()
+-+
+-+    def refresh_allowed_points(self):
+-+        self.allowed_wall_points = []
+-+        points = self.polygon.exterior.coords
+-+        for wall in zip(points[:-1], points[1:]):
+-+            self.allowed_wall_points.extend(self.calculate_wall_points(LineString(tuple(wall))))
+-diff --git a/client_api/server/camera_utils/camera.py b/client_api/server/camera_utils/camera.py
+-index 4207a44..9ae52d8 100644
+---- a/client_api/server/camera_utils/camera.py
+-+++ b/client_api/server/camera_utils/camera.py
+-@@ -14,6 +14,16 @@ class Camera:
+-         self.polygon = None
+-         self.polyline = None
+- 
+-+    @staticmethod
+-+    def generate_camera_rotations(wall, point):
+-+        pass
+-+
+-+    @property
+-+    def area(self):
+-+        if self.polygon is None:
+-+            return 0.
+-+        return self.polygon.area
+-+
+-     def refresh_polygon(self):
+-         self.center = scale(self.direction, VIEWING_DISTANCE, VIEWING_DISTANCE, origin=Point(0, 0))
+-         self.center = translate(self.center, self.point.x, self.point.y)
+-diff --git a/client_api/server/camera_utils/consts.py b/client_api/server/camera_utils/consts.py
+-index e73213f..ca81246 100644
+---- a/client_api/server/camera_utils/consts.py
+-+++ b/client_api/server/camera_utils/consts.py
+-@@ -1,5 +1,6 @@
+- # Viewing angle in degrees
+--VIEWING_ANGLE = 120
+--VIEWING_DISTANCE = 200
+-+VIEWING_ANGLE = 120.0
+-+VIEWING_DISTANCE = 200.0
+- VIEWING_POINTS = 100
+- ALLOWED_DISTANCE_ERROR = 0.01
+-+WALL_CAMERA_DISTANCE = 200.0
+diff --git a/client_api/server/camera_utils/building.py b/client_api/server/camera_utils/building.py
+index 798def4..b4a04cc 100644
+--- a/client_api/server/camera_utils/building.py
++++ b/client_api/server/camera_utils/building.py
+@@ -1,6 +1,8 @@
+-from shapely.geometry import LineString
++from shapely.geometry import LineString, Point
++from shapely.affinity import rotate
+ 
+ from .consts import WALL_CAMERA_DISTANCE, ALLOWED_DISTANCE_ERROR
++from .utils import scale_line_length
+ 
+ 
+ class Building:
+@@ -8,6 +10,8 @@ class Building:
+         self.polygon = building_polygon
+         # Points where cameras are allowed to be placed.
+         self.allowed_wall_points = []
++        self.wall2points = {}
++        self.point2wall = {}
+ 
+     @staticmethod
+     def calculate_wall_points(wall):
+@@ -23,6 +27,22 @@ class Building:
+ 
+     def refresh_allowed_points(self):
+         self.allowed_wall_points = []
++        self.wall2points = {}
++        self.point2wall = {}
+         points = self.polygon.exterior.coords
+         for wall in zip(points[:-1], points[1:]):
+-            self.allowed_wall_points.extend(self.calculate_wall_points(LineString(tuple(wall))))
++            pts = self.calculate_wall_points(LineString(tuple(wall)))
++            self.wall2points[tuple(wall)] = pts
++            for pt in pts:
++                self.point2wall[(pt.x, pt.y)] = wall
++            self.allowed_wall_points.extend(pts)
++
++    def get_forward_wall_camera_direction(self, point):
++        wall = self.point2wall[(point.x, point.y)]
++        vector0 = scale_line_length(LineString([(point.x, point.y), wall[0]]), ALLOWED_DISTANCE_ERROR)
++        vector1 = scale_line_length(LineString([(point.x, point.y), wall[1]]), ALLOWED_DISTANCE_ERROR)
++        for v in (vector0, vector1):
++            u = rotate(v, 90, origin=point, use_radians=False)
++            if not self.polygon.contains(Point(u.coords[1])):
++                p1, p2 = u.coords
++                return Point(p2[0] - p1[0], p2[1] - p1[1])
+diff --git a/client_api/server/camera_utils/camera.py b/client_api/server/camera_utils/camera.py
+index 9ae52d8..85ef76c 100644
+--- a/client_api/server/camera_utils/camera.py
++++ b/client_api/server/camera_utils/camera.py
+@@ -6,10 +6,11 @@ from .consts import ALLOWED_DISTANCE_ERROR, VIEWING_ANGLE, VIEWING_DISTANCE, VIE
+ 
+ 
+ class Camera:
+-    def __init__(self, point, direction):
++    def __init__(self, point, direction_vector):
+         self.point = point
++        direction = LineString([(0, 0), (direction_vector.x, direction_vector.y)])
+         length = direction.length
+-        self.direction = scale(direction, 1 / length, 1 / length, origin=direction.coords[0])
++        self.direction = scale(direction, 1 / length, 1 / length, origin=(0, 0))
+         self.center = None
+         self.polygon = None
+         self.polyline = None
+@@ -25,7 +26,7 @@ class Camera:
+         return self.polygon.area
+ 
+     def refresh_polygon(self):
+-        self.center = scale(self.direction, VIEWING_DISTANCE, VIEWING_DISTANCE, origin=Point(0, 0))
++        self.center = scale(self.direction, VIEWING_DISTANCE, VIEWING_DISTANCE, origin=(0, 0))
+         self.center = translate(self.center, self.point.x, self.point.y)
+         points = [self.point.coords[0]]
+         angles = np.linspace(-VIEWING_ANGLE / 2, VIEWING_ANGLE / 2, VIEWING_POINTS)
