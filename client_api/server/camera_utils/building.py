@@ -8,9 +8,11 @@ from .utils import scale_line_length
 class Building:
     def __init__(self, building_polygon):
         self.polygon = building_polygon
-        # Points where cameras are allowed to be placed.
+        # Points where cameras are allowed to be placed on walls.
         self.allowed_wall_points = []
+        # Walls along with their points.
         self.wall2points = {}
+        # Point along with its wall.
         self.point2wall = {}
 
     @staticmethod

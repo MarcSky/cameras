@@ -1,3 +1,4 @@
+from functools import reduce
 import numpy as np
 from shapely.affinity import rotate, scale, translate
 from shapely.geometry import LineString, LinearRing, Point, Polygon
@@ -16,8 +17,13 @@ class Camera:
         self.polyline = None
 
     @staticmethod
-    def generate_camera_rotations(wall, point):
-        pass
+    def common_area(cameras):
+        polygons = [c.polygon for c in cameras]
+        multi_polygon = reduce(lambda x, y: x.union(y), polygons)
+        return multi_polygon.area
+
+    def __hash__(self):
+        return hash(((self.point.x, self.point.y), self.direction.coords[1]))
 
     @property
     def area(self):

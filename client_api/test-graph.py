@@ -1,8 +1,10 @@
+from random import choice
+
 import PIL.Image as Image
 import PIL.ImageDraw as ImageDraw
 from shapely.geometry import LineString, Point, Polygon
 
-from .server.camera_utils import Building, Camera
+from server.camera_utils import Building, Camera
 
 WORLD = (
     (50, 50),
@@ -55,43 +57,59 @@ for start, end in tuple(zip(WORLD[:-1], WORLD[1:])):
 
 cameras = []
 
-c = Camera(Point(400, 400), LineString([(0, 0), (1, 1)]))
-c.refresh_polygon()
-cameras.append(c)
-
-c = Camera(Point(500, 350), LineString([(0, 0), (1, -1)]))
-c.refresh_polygon()
-cameras.append(c)
-
-c = Camera(Point(300, 300), LineString([(0, 0), (-1, 0)]))
-c.refresh_polygon()
-cameras.append(c)
-
-c = Camera(Point(700, 200), LineString([(0, 0), (1, -1)]))
-c.refresh_polygon()
-cameras.append(c)
-
-c = Camera(Point(500, 600), LineString([(0, 0), (1, 1)]))
-c.refresh_polygon()
-cameras.append(c)
-
-c = Camera(Point(800, 600), LineString([(0, 0), (-3, -1)]))
-c.refresh_polygon()
-cameras.append(c)
+# c = Camera(Point(400, 400), LineString([(0, 0), (1, 1)]))
+# c.refresh_polygon()
+# cameras.append(c)
+#
+# c = Camera(Point(500, 350), LineString([(0, 0), (1, -1)]))
+# c.refresh_polygon()
+# cameras.append(c)
+#
+# c = Camera(Point(300, 300), LineString([(0, 0), (-1, 0)]))
+# c.refresh_polygon()
+# cameras.append(c)
+#
+# c = Camera(Point(700, 200), LineString([(0, 0), (1, -1)]))
+# c.refresh_polygon()
+# cameras.append(c)
+#
+# c = Camera(Point(500, 600), LineString([(0, 0), (1, 1)]))
+# c.refresh_polygon()
+# cameras.append(c)
+#
+# c = Camera(Point(800, 600), LineString([(0, 0), (-3, -1)]))
+# c.refresh_polygon()
+# cameras.append(c)
 
 
 buildings = []
 for points in DATA:
     building = Building(Polygon(points))
     building.refresh()
+    buildings.append(building)
     draw.polygon(points, fill=200)
-    for c in cameras:
-        c.screen_building(building.polygon)
     for p in building.allowed_wall_points:
         draw.ellipse([(p.x - 5, p.y - 5), (p.x + 5, p.y + 5)], fill=256, width=3)
+        cameras.extend(building.get_allowed_cameras(p))
+        # c = Camera(p, building.get_forward_wall_camera_direction(p))
+        # c.refresh_polygon()
+        # cameras.append(c)
 
+# b = choice(buildings)
+# p = choice(b.allowed_wall_points)
+# cameras.extend(b.get_allowed_cameras(p))
 
 for c in cameras:
+    for b in buildings:
+        c.screen_building(b.polygon)
+
+for c in cameras:
+    # p = c.point
+    # draw.ellipse([(p.x - 10, p.y - 10), (p.x + 10, p.y + 10)], fill=512, width=3)
+    # print((c.point.x, c.point.y))
+    # print(list(c.center.coords))
+    # print(list(c.direction.coords))
+    # draw.line(list(c.center.coords), fill=100)
     draw.polygon(c.polygon.exterior.coords, outline=1)
 
 image.show()
