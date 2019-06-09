@@ -259,7 +259,7 @@ class GetResPoints2View(APIView):
                 full_buildings.append(b)
 
                 for p in b.allowed_wall_points:
-                    cameras.extend(b.get_allowed_cameras(p))  # object Camera
+                    cameras.extend(b.get_allowed_wall_cameras(p))  # object Camera
 
 
         random.shuffle(cameras)
@@ -269,8 +269,6 @@ class GetResPoints2View(APIView):
 
             for b in full_buildings:
                 p = Polygon(b.polygon)
-                print(p)
-                print(type(p))
                 c.screen_building(p)
 
         cameras_polygons = [c.polygon for c in cameras]

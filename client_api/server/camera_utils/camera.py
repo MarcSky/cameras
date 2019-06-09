@@ -76,7 +76,16 @@ class Camera:
                 points.append(line.coords[1])
                 is_sector_screened = True
             elif len(list(intersection)) > 1:
-                lines = [LineString([(self.point.x, self.point.y), (p.x, p.y)]) for p in list(intersection)]
+                pts = []
+                for entity in intersection:
+                    if isinstance(entity, Point):
+                        pts.append(entity)
+                    elif isinstance(entity, LineString):
+                        for pt in entity.coords:
+                            pts.append(Point(pt))
+                    else:
+                        continue
+                lines = [LineString([(self.point.x, self.point.y), (p.x, p.y)]) for p in pts]
                 line = min(lines, key=lambda l: l.length)
                 points.append(line.coords[1])
                 is_sector_screened = True

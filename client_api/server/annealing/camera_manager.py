@@ -2,6 +2,7 @@ import math
 from server.camera_utils import Camera
 from random import randint
 
+
 class CameraManager():
     def __init__(self, cameras):
         self.cameras = cameras
@@ -37,6 +38,7 @@ class CameraManager():
             self.area = currentArea
         return self.area
 
+
 class SimulatedAnnealing():
     def __init__(self, cameraManager):
         self.cameraManager = cameraManager
@@ -56,7 +58,7 @@ class SimulatedAnnealing():
             newSolution = self.cameraManager
 
             first_camera_index = randint(0, self.cameraManager.numberOfCameras)
-            second_camera_index  = randint(0, self.cameraManager.numberOfCameras)
+            second_camera_index = randint(0, self.cameraManager.numberOfCameras)
 
             first_camera_swap = newSolution.cameras[first_camera_index]
             second_camera_swap = newSolution.cameras[first_camera_index]
@@ -64,8 +66,12 @@ class SimulatedAnnealing():
             newSolution.setCamera(first_camera_swap, second_camera_index)
             newSolution.setCamera(second_camera_swap, first_camera_index)
 
-            # currentEnergy =
+            currentEnergy = bestSolution.getArea()
             neighborEnergy = newSolution.getArea()
 
+            if self.acceptanceProbability(currentEnergy, neighborEnergy, temp) > randint(0, 1000):
+                bestSolution = newSolution
 
             temp *= 1 - coolingRate
+
+        return bestSolution.cameras
