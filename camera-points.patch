@@ -1,0 +1,75 @@
+diff --git a/client_api/server/camera_utils/__init__.py b/client_api/server/camera_utils/__init__.py
+index e69de29..e0017af 100644
+--- a/client_api/server/camera_utils/__init__.py
++++ b/client_api/server/camera_utils/__init__.py
+@@ -0,0 +1,2 @@
++from .building import Building
++from .camera import Camera
+diff --git a/client_api/server/camera_utils/building.py b/client_api/server/camera_utils/building.py
+new file mode 100644
+index 0000000..798def4
+--- /dev/null
++++ b/client_api/server/camera_utils/building.py
+@@ -0,0 +1,28 @@
++from shapely.geometry import LineString
++
++from .consts import WALL_CAMERA_DISTANCE, ALLOWED_DISTANCE_ERROR
++
++
++class Building:
++    def __init__(self, building_polygon):
++        self.polygon = building_polygon
++        # Points where cameras are allowed to be placed.
++        self.allowed_wall_points = []
++
++    @staticmethod
++    def calculate_wall_points(wall):
++        if wall.length - WALL_CAMERA_DISTANCE < ALLOWED_DISTANCE_ERROR:
++            # Get middle of the wall.
++            return [wall.interpolate(0.5, normalized=True)]
++
++        points_count = int(wall.length // WALL_CAMERA_DISTANCE)
++        return [wall.interpolate((i / points_count), normalized=True) for i in range(1, points_count)]
++
++    def refresh(self):
++        self.refresh_allowed_points()
++
++    def refresh_allowed_points(self):
++        self.allowed_wall_points = []
++        points = self.polygon.exterior.coords
++        for wall in zip(points[:-1], points[1:]):
++            self.allowed_wall_points.extend(self.calculate_wall_points(LineString(tuple(wall))))
+diff --git a/client_api/server/camera_utils/camera.py b/client_api/server/camera_utils/camera.py
+index 4207a44..9ae52d8 100644
+--- a/client_api/server/camera_utils/camera.py
++++ b/client_api/server/camera_utils/camera.py
+@@ -14,6 +14,16 @@ class Camera:
+         self.polygon = None
+         self.polyline = None
+ 
++    @staticmethod
++    def generate_camera_rotations(wall, point):
++        pass
++
++    @property
++    def area(self):
++        if self.polygon is None:
++            return 0.
++        return self.polygon.area
++
+     def refresh_polygon(self):
+         self.center = scale(self.direction, VIEWING_DISTANCE, VIEWING_DISTANCE, origin=Point(0, 0))
+         self.center = translate(self.center, self.point.x, self.point.y)
+diff --git a/client_api/server/camera_utils/consts.py b/client_api/server/camera_utils/consts.py
+index e73213f..ca81246 100644
+--- a/client_api/server/camera_utils/consts.py
++++ b/client_api/server/camera_utils/consts.py
+@@ -1,5 +1,6 @@
+ # Viewing angle in degrees
+-VIEWING_ANGLE = 120
+-VIEWING_DISTANCE = 200
++VIEWING_ANGLE = 120.0
++VIEWING_DISTANCE = 200.0
+ VIEWING_POINTS = 100
+ ALLOWED_DISTANCE_ERROR = 0.01
++WALL_CAMERA_DISTANCE = 200.0

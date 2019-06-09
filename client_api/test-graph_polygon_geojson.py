@@ -69,6 +69,24 @@ polygons = []
 for c in cameras:
     polygons.append(c.polygon)
 
-print(polygons)
 
-# def polygonsToGeoJson(polygons):
+def getGeoJson(polygons):
+    return {"type": "FeatureCollection", "features": polygons}
+
+
+def getGeoJsonPolygon(coordinates):
+    return {"type": "Feature", "properties": {}, "geometry": {
+        "type": "Polygon", "coordinates": coordinates}}
+
+
+def polygonsToGeoJson(polygons):
+    geoJsonPolygons = []
+    for polygon in polygons:
+        coordinates = []
+        for point in polygon.exterior.coords:
+            coordinates.append([point[0], point[1]])
+        geoJsonPolygons.append(getGeoJsonPolygon(coordinates))
+    return geoJsonPolygons
+
+
+print(getGeoJson(polygonsToGeoJson(polygons)))

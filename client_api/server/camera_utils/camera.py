@@ -14,6 +14,16 @@ class Camera:
         self.polygon = None
         self.polyline = None
 
+    @staticmethod
+    def generate_camera_rotations(wall, point):
+        pass
+
+    @property
+    def area(self):
+        if self.polygon is None:
+            return 0.
+        return self.polygon.area
+
     def refresh_polygon(self):
         self.center = scale(self.direction, VIEWING_DISTANCE, VIEWING_DISTANCE, origin=Point(0, 0))
         self.center = translate(self.center, self.point.x, self.point.y)
