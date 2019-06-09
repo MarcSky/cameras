@@ -41,7 +41,7 @@ export default class LayerListItem extends React.PureComponent<Props, State>{
     let thisLayers = map.getLayers().getArray()
     let thisLayer = thisLayers.find(layer => layer.get('name') === title)
 
-    if (thisLayer === undefined) {
+    if (url !== undefined && thisLayer === undefined) {
       try {
         this.setState({ pending: true })
         let response = await axios.get(url)
@@ -89,7 +89,7 @@ export default class LayerListItem extends React.PureComponent<Props, State>{
   }
 
   render() {
-    let { title } = this.props;
+    let { title, url } = this.props;
     let { visible, layer, pending } = this.state;
 
     return (
@@ -102,11 +102,17 @@ export default class LayerListItem extends React.PureComponent<Props, State>{
           }}>
             {title}
             {
-              layer !== undefined &&
+              layer !== undefined && (
               <Checkbox defaultChecked={visible} value={visible} onChange={() => {
                 layer.setVisible(!visible);
                 this.setState({ visible: !visible })
               }} />
+              )
+            }
+            {
+              url === undefined && (
+                <Checkbox/>
+              )
             }
           </div>
         </Spin>

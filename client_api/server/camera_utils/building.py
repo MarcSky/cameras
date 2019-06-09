@@ -67,6 +67,8 @@ class Building:
                 p1, p2 = u.coords
                 return Point(p2[0] - p1[0], p2[1] - p1[1])
 
+        raise NotImplementedError
+
     def get_forward_corner_camera_direction(self, point):
         points = self.polygon.exterior.coords
         indexes = [
