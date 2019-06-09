@@ -11,7 +11,8 @@ from django.views.generic import TemplateView
 from camera_utils.camera import Camera
 from camera_utils.building import Building
 from shapely.geometry import LineString, Point, Polygon
-import shapely.wkt
+import geopandas
+import random
 
 
 class GeoList(APIView):
@@ -223,10 +224,6 @@ class IndexView(TemplateView):
     template_name = 'api/index.html'
 
 
-
-from shapely.geometry import LineString, Point, Polygon
-import geopandas
-
 class GetResPointsView(APIView):
 
     def get(self, request):
@@ -234,6 +231,7 @@ class GetResPointsView(APIView):
         points = []
         for building in buildings:
             polygons = building.figure.coords
+
             for polygon in polygons:
                 pil_polygon = Polygon(polygon)
                 b = Building(pil_polygon)
@@ -243,3 +241,37 @@ class GetResPointsView(APIView):
         return Response(geopandas.GeoSeries(points).__geo_interface__)
 
 
+class GetResPoints2View(APIView):
+
+    def get(self, request):
+        buildings = Buildings.objects.all()
+        cameras = []
+        full_buildings = []
+        CAMERAS_COUNT = 100
+
+        for building in buildings:
+            polygons = building.figure.coords
+
+            for polygon in polygons:
+                pil_polygon = Polygon(polygon)
+                b = Building(pil_polygon)
+                b.refresh()
+                full_buildings.append(b)
+
+                for p in b.allowed_wall_points:
+                    cameras.extend(b.get_allowed_cameras(p))  # object Camera
+
+
+        random.shuffle(cameras)
+        cameras = cameras[0:CAMERAS_COUNT]
+        for c in cameras:
+            c.refresh_polygon()
+
+            for b in full_buildings:
+                p = Polygon(b.polygon)
+                print(p)
+                print(type(p))
+                c.screen_building(p)
+
+        cameras_polygons = [c.polygon for c in cameras]
+        return Response(geopandas.GeoSeries(cameras_polygons).__geo_interface__)

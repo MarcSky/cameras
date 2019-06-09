@@ -1,4 +1,6 @@
 from functools import reduce
+from itertools import combinations
+
 import numpy as np
 from shapely.affinity import rotate, scale, translate
 from shapely.geometry import LineString, LinearRing, Point, Polygon
@@ -21,6 +23,17 @@ class Camera:
         polygons = [c.polygon for c in cameras]
         multi_polygon = reduce(lambda x, y: x.union(y), polygons)
         return multi_polygon.area
+
+    @staticmethod
+    def intersection_area(cameras):
+        polygons = [c.polygon.buffer(0.1) for c in cameras]
+        area = 0.
+        for p1, p2 in combinations(polygons, 2):
+            if p1 == p2 or not p1.intersects(p2):
+                continue
+            p = p1.intersection(p2)
+            area += p.area
+        return area
 
     def __hash__(self):
         return hash(((self.point.x, self.point.y), self.direction.coords[1]))

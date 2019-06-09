@@ -94,7 +94,6 @@ for points in DATA:
         # c = Camera(p, building.get_forward_wall_camera_direction(p))
         # c.refresh_polygon()
         # cameras.append(c)
-
 # b = choice(buildings)
 # p = choice(b.allowed_wall_points)
 # cameras.extend(b.get_allowed_cameras(p))

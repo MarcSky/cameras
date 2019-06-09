@@ -28,6 +28,7 @@ urlpatterns = [
     path('api/cameras/', views.CameraList.as_view()),
 
     path('api/res-point/', views.GetResPointsView.as_view()),
+    path('api/res-point2/', views.GetResPoints2View.as_view()),
 
     path('', views.IndexView.as_view()),
 
