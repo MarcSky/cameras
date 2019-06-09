@@ -61,6 +61,9 @@ export class LayerList extends React.PureComponent<Props> {
     { title: 'Постройки', url: 'api/advertising/', style: BStyle },
     { title: 'Зеленые насаждения', url: 'api/green/', style: NStyle },
     { title: 'Рекламные конструкции', url: 'api/buildings/', style: RStyle },
+    { title: 'Муниципальное дошкольное учеждения', },
+    { title: 'Судебные участки мировых судей', },
+    { title: 'Детские игровые площадки', },
   ]
 
   sychData = async () => {
@@ -85,7 +88,7 @@ export class LayerList extends React.PureComponent<Props> {
       <div className="layer-list" >
         <Spin spinning={pending}>
           <List
-            style={{ margin: 30 }}
+            style={{ marginTop: 80, marginRight: 100 }}
             header="Список доступных слоев"
             dataSource={this.data}
             renderItem={item =>

@@ -245,7 +245,7 @@ class GetResPointsView(APIView):
 class GetResPoints2View(APIView):
 
     def get(self, request):
-        CAMERAS_COUNT = 100
+        CAMERAS_COUNT = 10
         count = request.GET.get('count', CAMERAS_COUNT)
         bbox = request.GET.get('bbox')
 
