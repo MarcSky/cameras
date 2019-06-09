@@ -2,7 +2,7 @@ import PIL.Image as Image
 import PIL.ImageDraw as ImageDraw
 from shapely.geometry import LineString, Point, Polygon
 
-from server.camera_utils.camera import Camera
+from .server.camera_utils import Building, Camera
 
 WORLD = (
     (50, 50),
@@ -49,12 +49,29 @@ image = Image.new("RGB", size=(1200, 1000), color=(255,255,255,0))
 
 draw = ImageDraw.Draw(image)
 
+# print(tuple(zip(WORLD[:-1], WORLD[1:])) + ((WORLD[0], WORLD[-1])))
 for start, end in tuple(zip(WORLD[:-1], WORLD[1:])):
     draw.line(start + end, fill=128, width=3)
 
 cameras = []
 
-c = Camera(Point(1000, 400), LineString([(0, 0), (1, 1)]))
+c = Camera(Point(400, 400), LineString([(0, 0), (1, 1)]))
+c.refresh_polygon()
+cameras.append(c)
+
+c = Camera(Point(500, 350), LineString([(0, 0), (1, -1)]))
+c.refresh_polygon()
+cameras.append(c)
+
+c = Camera(Point(300, 300), LineString([(0, 0), (-1, 0)]))
+c.refresh_polygon()
+cameras.append(c)
+
+c = Camera(Point(700, 200), LineString([(0, 0), (1, -1)]))
+c.refresh_polygon()
+cameras.append(c)
+
+c = Camera(Point(500, 600), LineString([(0, 0), (1, 1)]))
 c.refresh_polygon()
 cameras.append(c)
 
@@ -62,14 +79,19 @@ c = Camera(Point(800, 600), LineString([(0, 0), (-3, -1)]))
 c.refresh_polygon()
 cameras.append(c)
 
+
+buildings = []
 for points in DATA:
+    building = Building(Polygon(points))
+    building.refresh()
     draw.polygon(points, fill=200)
     for c in cameras:
-        c.screen_building(Polygon(points))
+        c.screen_building(building.polygon)
+    for p in building.allowed_wall_points:
+        draw.ellipse([(p.x - 5, p.y - 5), (p.x + 5, p.y + 5)], fill=256, width=3)
 
 
 for c in cameras:
     draw.polygon(c.polygon.exterior.coords, outline=1)
-    print(c.polygon)
 
 image.show()

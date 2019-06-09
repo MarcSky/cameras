@@ -10,3 +10,5 @@ psycopg2==2.7.5
 pyshp==2.1.0
 pytz==2019.1
 sqlparse==0.3.0
+Pillow==6.0.0
+geopandas==0.5.0

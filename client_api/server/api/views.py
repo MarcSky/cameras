@@ -9,6 +9,7 @@ from django.core.serializers import serialize
 from django.contrib.gis.geos import Polygon, GeometryCollection
 from django.views.generic import TemplateView
 from camera_utils.camera import Camera
+from camera_utils.building import Building
 from shapely.geometry import LineString, Point, Polygon
 import shapely.wkt
 
@@ -202,11 +203,11 @@ class CameraList(APIView):
                 #     (39.71434411, 47.22922511),
                 #     (39.71481775, 47.22932136),
                 # )))
-                # c.screen_building(Polygon((
-                #     (100, 100),
-                #     (100, 800),
-                #     (200, 800),
-                #     (200, 100),
+                # c.screen_buildiBuildings((
+                #     (100, 100),Buildings
+                #     (100, 800),Buildings
+                #     (200, 800),Buildings
+                #     (200, 100),Buildings
                 # )))
 
         object = []
@@ -220,3 +221,25 @@ class CameraList(APIView):
 
 class IndexView(TemplateView):
     template_name = 'api/index.html'
+
+
+
+from shapely.geometry import LineString, Point, Polygon
+import geopandas
+
+class GetResPointsView(APIView):
+
+    def get(self):
+        buildings = Buildings.objects.all()
+        points = []
+        for building in buildings:
+            polygons = building.figure.coords
+            for polygon in polygons:
+                pil_polygon = Polygon(polygon)
+                b = Building(pil_polygon)
+                b.refresh()
+                points += b.allowed_wall_points
+
+        return Response(geopandas.GeoSeries(points).__geo_interface__)
+
+
