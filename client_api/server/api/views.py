@@ -244,10 +244,20 @@ class GetResPointsView(APIView):
 class GetResPoints2View(APIView):
 
     def get(self, request):
-        buildings = Buildings.objects.all()
+        CAMERAS_COUNT = 100
+        count = request.GET.get('count', CAMERAS_COUNT)
+        bbox = request.GET.get('bbox')
+
+        if bbox is not None:
+            try:
+                buildings = Buildings.objects.filter(figure__contained=getGeom(bbox=bbox))
+            except Exception as e:
+                return Response(e)
+        else:
+            buildings = Buildings.objects.all()
+
         cameras = []
         full_buildings = []
-        CAMERAS_COUNT = 100
 
         for building in buildings:
             polygons = building.figure.coords
@@ -263,7 +273,7 @@ class GetResPoints2View(APIView):
 
 
         random.shuffle(cameras)
-        cameras = cameras[0:CAMERAS_COUNT]
+        cameras = cameras[0: min(int(count), len(cameras))]
         for c in cameras:
             c.refresh_polygon()
 
