@@ -41,7 +41,10 @@ class Building:
 
     def get_allowed_wall_cameras(self, point):
         from . import Camera
-        direction = self.get_forward_wall_camera_direction(point)
+        try:
+            direction = self.get_forward_wall_camera_direction(point)
+        except:
+            return []
         cameras = [Camera(point, direction)]
         turn_angle = int(90 - VIEWING_ANGLE / 2)
         v = LineString([(0, 0), (direction.x, direction.y)])
@@ -53,7 +56,10 @@ class Building:
 
     def get_allowed_corner_cameras(self, point):
         from . import Camera
-        direction = self.get_forward_corner_camera_direction(point)
+        try:
+            direction = self.get_forward_corner_camera_direction(point)
+        except:
+            return []
         cameras = [Camera(point, direction)]
         return cameras
 

@@ -14,10 +14,10 @@ import axios from 'axios';
 // import './style.scss'
 
 const BStyle = new olStyle({
-  fill: new olFillStyle({ color: [0, 0, 0, 0] }),
+  fill: new olFillStyle({ color: [45, 189, 189, 0] }),
   stroke: new olStrokeStyle({
-    color: '#000000',
-    width: 3,
+    color: '#2dbdbd',
+    width: 1,
   }),
 });
 
@@ -58,9 +58,9 @@ export class LayerList extends React.PureComponent<Props> {
   state: State = { pending: false }
   data = [
     { title: 'НТО', url: 'api/ntopoly/', style: GStyle },
-    { title: 'Постройки', url: 'api/advertising/', style: BStyle },
+    { title: 'Постройки', url: 'api/advertising/', style: RStyle },
     { title: 'Зеленые насаждения', url: 'api/green/', style: NStyle },
-    { title: 'Рекламные конструкции', url: 'api/buildings/', style: RStyle },
+    { title: 'Рекламные конструкции', url: 'api/buildings/', style: BStyle },
     { title: 'Муниципальное дошкольное учеждения', },
     { title: 'Судебные участки мировых судей', },
     { title: 'Детские игровые площадки', },

@@ -80,7 +80,7 @@ export class CamSettings extends React.PureComponent<Props> {
 
 		this.setState({pending: true});
 		try{
-			let response = await axios.get(`api/res-point2?count=&{120}`);
+			let response = await axios.get(`api/res-point2/`);
 			let results = response.data.features;
 
 			if (results.length){
@@ -92,7 +92,7 @@ export class CamSettings extends React.PureComponent<Props> {
         });
 
         const RStyle = new olStyle({
-				  fill: new olFillStyle({ color: [206, 255, 0, 0] }),
+				  fill: new olFillStyle({ color: [206, 255, 0, 70] }),
 				  stroke: new olStrokeStyle({
 				    color: '#ceae7f',
 				    width: 1,
@@ -102,8 +102,8 @@ export class CamSettings extends React.PureComponent<Props> {
         let layer = new olVectorLayer({
           source: vectorSource,
           name: 'cam',
-          opacity: 0.7
-          // style: style,
+          opacity: 0.7,
+          style: RStyle,
         });
 
         // this.setState({ layer });
