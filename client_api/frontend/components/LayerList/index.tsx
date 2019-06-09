@@ -7,14 +7,11 @@ import olStrokeStyle from 'ol/style/Stroke';
 
 // import {olFill, olStroke, olStyle} from 'ol/style.js';
 
-import { List, Button } from 'antd';
+import { List, Button, Modal, Spin } from 'antd';
 import LayerListItem from './LayerListItem';
 
+import axios from 'axios';
 // import './style.scss'
-
-interface Props {
-  map: olMap;
-}
 
 const BStyle = new olStyle({
   fill: new olFillStyle({ color: [0, 0, 0, 0] }),
@@ -50,34 +47,58 @@ const RStyle = new olStyle({
 });
 
 
-export class LayerList extends React.PureComponent<Props> {
+interface Props {
+  map: olMap;
+}
+interface State {
+  pending: boolean;
+}
 
+export class LayerList extends React.PureComponent<Props> {
+  state: State = { pending: false }
   data = [
-    { title: 'Зеленые насаждения', url: 'api/ntopoly/', style: GStyle },
+    { title: 'НТО', url: 'api/ntopoly/', style: GStyle },
     { title: 'Постройки', url: 'api/advertising/', style: BStyle },
-    { title: 'НТО', url: 'api/green/', style: NStyle },
+    { title: 'Зеленые насаждения', url: 'api/green/', style: NStyle },
     { title: 'Рекламные конструкции', url: 'api/buildings/', style: RStyle },
   ]
+
+  sychData = async () => {
+    try {
+      this.setState({ pending: true });
+      await axios.get('/parser')
+    } catch{
+      Modal.error({ title: 'Ошибка при синхронизации объектов' })
+    }
+    finally {
+      this.setState({ pending: false });
+    }
+  }
 
   render() {
 
     let { map } = this.props;
+    let { pending } = this.state;
+    let { sychData } = this;
+
     return (
       <div className="layer-list" >
-        <List
-          style={{margin: 30}}
-          header="Список доступных слоев"
-          dataSource={this.data}
-          renderItem={item =>
-            <LayerListItem
-              map={map}
-              title={item.title}
-              url={item.url}
-              style={item.style}
-            />
-          }
-        />
-        <Button> 123 </Button>
+        <Spin spinning={pending}>
+          <List
+            style={{ margin: 30 }}
+            header="Список доступных слоев"
+            dataSource={this.data}
+            renderItem={item =>
+              <LayerListItem
+                map={map}
+                title={item.title}
+                url={item.url}
+                style={item.style}
+              />
+            }
+          />
+          <Button onClick={sychData}> Синхронизировать </Button>
+        </Spin>
       </div >
     )
   }

@@ -8,7 +8,7 @@ import GeoJSON from 'ol/format/GeoJSON.js';
 
 import olStyle from 'ol/style/Style';
 
-import { Modal, Checkbox } from 'antd';
+import { Modal, Checkbox, Spin } from 'antd';
 import axios from 'axios';
 
 
@@ -22,6 +22,7 @@ interface Props {
 interface State {
   visible: boolean;
   layer?: olVectorLayer;
+  pending: boolean;
 }
 
 // const headers = {
@@ -32,7 +33,7 @@ interface State {
 
 export default class LayerListItem extends React.PureComponent<Props, State>{
 
-  state: State = { visible: true }
+  state: State = { visible: true, pending: false }
 
   fetchLayers = async () => {
     let { url, title, map, style } = this.props;
@@ -42,6 +43,7 @@ export default class LayerListItem extends React.PureComponent<Props, State>{
 
     if (thisLayer === undefined) {
       try {
+        this.setState({ pending: true })
         let response = await axios.get(url)
         // let response = await axios.get(url, {
         //   method: 'GET',
@@ -74,7 +76,10 @@ export default class LayerListItem extends React.PureComponent<Props, State>{
         }
       } catch (err) {
         console.log(err);
-        // Modal.error({ title: `Ошибка при загрузки данных слоя ${title}` })
+        Modal.error({ title: `Ошибка при загрузки данных слоя ${title}` })
+      }
+      finally {
+        this.setState({ pending: false });
       }
     }
   }
@@ -85,18 +90,26 @@ export default class LayerListItem extends React.PureComponent<Props, State>{
 
   render() {
     let { title } = this.props;
-    let { visible, layer } = this.state;
+    let { visible, layer, pending } = this.state;
 
     return (
       <div className="list-item">
-        {title}
-        {
-          layer !== undefined &&
-          <Checkbox defaultChecked={visible} value={visible} onChange={() => {
-            layer.setVisible(!visible);
-            this.setState({ visible: !visible })
-          }} />
-        }
+        <Spin spinning={pending}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            width: 300,
+          }}>
+            {title}
+            {
+              layer !== undefined &&
+              <Checkbox defaultChecked={visible} value={visible} onChange={() => {
+                layer.setVisible(!visible);
+                this.setState({ visible: !visible })
+              }} />
+            }
+          </div>
+        </Spin>
       </div>
     )
   }
